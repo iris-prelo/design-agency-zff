@@ -14,8 +14,8 @@ let eye = {
   y: 0,
   width: 0,   
   height: 0,  
-  scale: 0.8,  // Reduced scale for smaller frame
-  imageScale: 3  // Keeping image size the same
+  scale: 0.8,  // Scale for the frame size
+  imageScale: 3  // Scale for the eye image size
 };
 
 let img;
@@ -132,15 +132,19 @@ function draw() {
     let scaledWidth = eye.width * eye.imageScale;
     let scaledHeight = eye.height * eye.imageScale;
     
-    // Create circular mask
+    // Calculate the center position of the current square
+    let centerX = square.x;
+    let centerY = square.y;
+    
+    // Create circular mask at the center
     push();
     fill(0);
     noStroke();
-    circle(square.x, square.y, maskWidth);
+    circle(centerX, centerY, maskWidth);
     pop();
     
-    // Draw the eye image (larger than the mask)
-    image(eyeImg, square.x, square.y, scaledWidth, scaledHeight);
+    // Draw the eye image centered at the same point
+    image(eyeImg, centerX, centerY, scaledWidth, scaledHeight);
   }
 }
 
