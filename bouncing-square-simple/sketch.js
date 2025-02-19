@@ -10,6 +10,10 @@ let square = {
 let img;
 let isAnimationStarted = false;
 let uploadContainer;
+let targetWidth = 100;
+let targetHeight = 100;
+let changeTimer = 0;
+let transitionSpeed = 0.05;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -65,37 +69,41 @@ function draw() {
   square.x += square.speedX;
   square.y += square.speedY;
   
-  // Check for collisions and change shape
+  // Update timer and set new target sizes occasionally
+  changeTimer++;
+  if (changeTimer > 60) { // Change every 60 frames (about 1 second)
+    changeTimer = 0;
+    targetWidth = random(50, 400);
+    targetHeight = random(50, 400);
+  }
+  
+  // Smoothly interpolate current size to target size
+  square.width = lerp(square.width, targetWidth, transitionSpeed);
+  square.height = lerp(square.height, targetHeight, transitionSpeed);
+  
+  // Check for collisions
   // Right edge
   if (square.x + square.width > width) {
     square.x = width - square.width;
     square.speedX *= -1;
-    square.height = random(100, 250);
-    square.width = random(100, 250);
   }
   
   // Left edge
   if (square.x < 0) {
     square.x = 0;
     square.speedX *= -1;
-    square.height = random(100, 250);
-    square.width = random(100, 250);
   }
   
   // Bottom edge
   if (square.y + square.height > height) {
     square.y = height - square.height;
     square.speedY *= -1;
-    square.width = random(100, 250);
-    square.height = random(100, 250);
   }
   
   // Top edge
   if (square.y < 0) {
     square.y = 0;
     square.speedY *= -1;
-    square.width = random(100, 250);
-    square.height = random(100, 250);
   }
   
   // Draw the image
