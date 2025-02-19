@@ -1,0 +1,336 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: rgb(10, 10, 10); /* slightly lighter than pure black */
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.light-effect {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200vw;
+  height: 200vh;
+  background: radial-gradient(
+    ellipse at 60% 60%,
+    transparent 10%,
+    rgba(255, 255, 255, 0.6) 15%,
+    rgba(255, 200, 100, 0.4) 25%,
+    transparent 35%,
+    /* dark hole */ rgba(200, 50, 255, 0.4) 45%,
+    transparent 55%,
+    /* dark hole */ rgba(255, 150, 100, 0.2) 65%,
+    transparent 75%,
+    /* dark hole */ rgba(255, 200, 50, 0.2) 85%,
+    transparent 95%
+  );
+  transform: rotate(-45deg);
+  filter: blur(70px) contrast(1.8) saturate(1.5);
+  animation: waterFlow 12s infinite ease-in-out, colorShift 20s infinite linear,
+    pulse 15s infinite ease-in-out, drift 25s infinite ease-in-out;
+}
+
+.light-effect::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(
+    from 45deg at 50% 50%,
+    transparent 5%,
+    rgba(255, 255, 255, 0.6) 10%,
+    transparent 20%,
+    /* dark hole */ rgba(255, 100, 200, 0.3) 30%,
+    transparent 40%,
+    /* dark hole */ rgba(150, 50, 255, 0.2) 50%,
+    transparent 60%
+  );
+  filter: blur(50px);
+  mix-blend-mode: screen;
+  transform: scale(1.5) rotate(180deg);
+  animation: waterRipple 10s infinite ease-in-out, swirl 30s infinite linear,
+    breathe 18s infinite ease-in-out;
+}
+
+.light-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(
+    from 225deg at 40% 60%,
+    transparent 10%,
+    rgba(255, 150, 0, 0.3) 20%,
+    transparent 30%,
+    /* dark hole */ rgba(50, 0, 255, 0.1) 40%,
+    transparent 60%
+  );
+  filter: blur(90px);
+  mix-blend-mode: screen;
+  transform: scale(1.2);
+  animation: waterWave 15s infinite ease-in-out, float 20s infinite ease-in-out,
+    glow 12s infinite alternate;
+}
+
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E');
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.bubble {
+  width: 200vw; /* even larger for dramatic effect */
+  height: 200vh;
+  position: relative;
+  transform: rotate(-45deg) scale(2); /* diagonal orientation */
+}
+
+.bubble::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.95) 0%,
+    /* bright white center */ rgba(255, 255, 255, 0.8) 20%,
+    rgba(0, 195, 255, 0.7) 40%,
+    /* bright cyan */ rgba(0, 100, 255, 0.6) 50%,
+    /* medium blue */ rgba(255, 90, 0, 0.5) 60%,
+    /* orange */ rgba(0, 0, 0, 0) 75%
+  );
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.9),
+    inset 0 0 200px rgba(0, 150, 255, 0.5),
+    inset 0 0 300px rgba(255, 100, 0, 0.3);
+  filter: blur(20px) contrast(2); /* increased blur and contrast */
+  mix-blend-mode: screen;
+}
+
+.light-source {
+  display: none; /* remove the right light source */
+}
+
+.aura {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+  filter: blur(20px);
+}
+
+.aura::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 55% 45% 50% 50% / 45% 55% 50% 50%; /* organic shape */
+  background: radial-gradient(
+    ellipse at 75% 50%,
+    rgba(255, 0, 255, 0.4) 0%,
+    rgba(0, 255, 255, 0.3) 20%,
+    rgba(255, 150, 255, 0.2) 40%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  animation: pulse 4s ease-in-out infinite alternate,
+    iridescent 5s linear infinite;
+}
+
+.light-beams {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7; /* reduced overall opacity */
+  transition: opacity 0.5s;
+}
+
+.light-beams::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  left: -50%;
+  top: -50%;
+  background: radial-gradient(
+    ellipse at 80% 50%,
+    rgba(255, 150, 255, 0.6),
+    rgba(255, 0, 255, 0.5) 20%,
+    rgba(0, 255, 255, 0.6) 40%,
+    rgba(255, 0, 255, 0.5) 60%,
+    rgba(150, 255, 255, 0.6) 80%,
+    rgba(255, 100, 255, 0.5) 100%
+  );
+  filter: blur(5px); /* added blur for softer edges */
+  animation: rotate-beams 4s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.2);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.25);
+  }
+}
+
+@keyframes iridescent {
+  0% {
+    filter: blur(3px) contrast(1.5) hue-rotate(0deg) saturate(3);
+  }
+  100% {
+    filter: blur(3px) contrast(1.5) hue-rotate(360deg) saturate(3);
+  }
+}
+
+@keyframes rotate-beams {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes morphing {
+  0%,
+  100% {
+    border-radius: 60% 40% 40% 60% / 60% 40% 60% 40%;
+  }
+  50% {
+    border-radius: 40% 60% 60% 40% / 40% 60% 40% 60%;
+  }
+}
+
+@keyframes wobble {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.5);
+  }
+  50% {
+    transform: translate(-100px, 100px) scale(1.7);
+  }
+}
+
+@keyframes waterFlow {
+  0%,
+  100% {
+    transform: rotate(-45deg) scale(1);
+  }
+  25% {
+    transform: rotate(-40deg) scale(1.2);
+  }
+  50% {
+    transform: rotate(-50deg) scale(0.9);
+  }
+  75% {
+    transform: rotate(-42deg) scale(1.1);
+  }
+}
+
+@keyframes waterRipple {
+  0%,
+  100% {
+    transform: scale(1.5) rotate(180deg) translate(0, 0);
+  }
+  33% {
+    transform: scale(1.3) rotate(190deg) translate(5%, -5%);
+  }
+  66% {
+    transform: scale(1.7) rotate(170deg) translate(-5%, 5%);
+  }
+}
+
+@keyframes waterWave {
+  0%,
+  100% {
+    transform: scale(1.2) translate(0, 0);
+    filter: blur(90px) brightness(1);
+  }
+  33% {
+    transform: scale(1.1) translate(4%, 4%);
+    filter: blur(80px) brightness(1.2);
+  }
+  66% {
+    transform: scale(1.3) translate(-4%, -4%);
+    filter: blur(100px) brightness(0.8);
+  }
+}
+
+@keyframes colorShift {
+  0% {
+    filter: blur(70px) contrast(1.8) saturate(1.5) hue-rotate(0deg);
+  }
+  100% {
+    filter: blur(70px) contrast(1.8) saturate(1.5) hue-rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-45deg);
+  }
+  25% {
+    transform: translate(2%, -2%) rotate(-43deg);
+  }
+  50% {
+    transform: translate(-1%, 1%) rotate(-47deg);
+  }
+  75% {
+    transform: translate(1%, -1%) rotate(-44deg);
+  }
+}
+
+@keyframes swirl {
+  0% {
+    transform: scale(1.5) rotate(180deg);
+  }
+  100% {
+    transform: scale(1.5) rotate(540deg);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1.5);
+  }
+  50% {
+    transform: scale(1.7);
+  }
+}
+
+@keyframes glow {
+  0% {
+    filter: blur(90px) brightness(0.8);
+  }
+  100% {
+    filter: blur(90px) brightness(1.2);
+  }
+}
