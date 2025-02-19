@@ -1,21 +1,16 @@
 let square = {
   x: 100,
   y: 100,
-  width: 200,  
-  height: 200,  
+  width: 100,
+  height: 100,
   speedX: 3,
-  speedY: 3,
-  minSize: 150,  
-  maxSize: 250   
+  speedY: 3
 };
 
 let eye = {
   x: 0,
   y: 0,
-  width: 0,   
-  height: 0,  
-  scale: 0.8,  // Scale for the frame size
-  imageScale: 3  // Scale for the eye image size
+  size: 50  // Adjust this value to change the eye size
 };
 
 let img;
@@ -37,9 +32,6 @@ function setup() {
   // Load the eye image
   loadImage('eye.png', (loadedImg) => {
     eyeImg = loadedImg;
-    let aspectRatio = eyeImg.width / eyeImg.height;
-    eye.height = 150;
-    eye.width = eye.height * aspectRatio;
   });
   
   // Hide the canvas initially
@@ -84,6 +76,9 @@ function startAnimation(loadedImg) {
 function draw() {
   if (!isAnimationStarted) return;
   
+  // Clear the background each frame
+  background(0);
+  
   // Update square position
   square.x += square.speedX;
   square.y += square.speedY;
@@ -121,30 +116,16 @@ function draw() {
     square.height = random(square.minSize, square.maxSize);
   }
   
-  // Draw the frame effect to the buffer
-  frameBuffer.image(img, square.x, square.y, square.width, square.height);
+  // Draw the Opernhaus image
+  image(img, square.x, square.y, square.width, square.height);
   
-  // Draw the buffer to the main canvas
-  image(frameBuffer, width/2, height/2, width, height);
+  // Update eye position to follow the center of the Opernhaus image
+  eye.x = square.x + square.width/2 - eye.size/2;
+  eye.y = square.y + square.height/2 - eye.size/2;
   
+  // Draw the eye image
   if (eyeImg) {
-    let maskWidth = eye.width * eye.scale;
-    let scaledWidth = eye.width * eye.imageScale;
-    let scaledHeight = eye.height * eye.imageScale;
-    
-    // Calculate the center position of the current square
-    let centerX = square.x;
-    let centerY = square.y;
-    
-    // Create circular mask at the center
-    push();
-    fill(0);
-    noStroke();
-    circle(centerX, centerY, maskWidth);
-    pop();
-    
-    // Draw the eye image centered at the same point
-    image(eyeImg, centerX, centerY, scaledWidth, scaledHeight);
+    image(eyeImg, eye.x, eye.y, eye.size, eye.size);
   }
 }
 
