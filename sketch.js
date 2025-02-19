@@ -10,8 +10,8 @@ function setup() {
 }
 
 function draw() {
-  // Clear with slight fade for trail effect
-  background(10, 10, 10, 0.1);
+  // Lighter background
+  background(245, 245, 245, 0.1);
   
   // Main light effect
   drawLightEffect();
@@ -25,7 +25,7 @@ function draw() {
   // Add noise overlay
   drawNoise();
   
-  time += 0.01;
+  time += 0.005; // Slower overall movement
 }
 
 function drawLightEffect() {
@@ -33,16 +33,15 @@ function drawLightEffect() {
   translate(width/2, height/2);
   rotate(-PI/4);
   
-  // Main gradient - smaller steps for smoother gradient
-  let gradientSize = max(width, height) * 2;
+  let gradientSize = max(width, height) * 1.5;
   for(let r = gradientSize; r > 0; r -= 5) {
-    let alpha = map(r, 0, gradientSize, 0.3, 0);
+    let alpha = map(r, 0, gradientSize, 0.1, 0);
     
     noStroke();
     fill(
       lerpColor(
         color(255, 255, 255, alpha), 
-        color(255, 200, 100, alpha * 0.4),
+        color(255, 200, 255, alpha * 0.4),
         r/gradientSize
       )
     );
@@ -57,48 +56,46 @@ function drawBubble() {
   translate(width/2, height/2);
   
   let bubbleSize = 300;
-  let t = time * 1.5;
+  let t = time * 0.5;
   
   noStroke();
+  blendMode(SCREEN);
   
-  // Base colored shape
-  fill(200, 100, 255, 0.3); // Light purple base
-  beginShape();
-  for(let a = 0; a < TWO_PI; a += 0.05) {
-    let xoff = map(cos(a), -1, 1, 0, 3);
-    let yoff = map(sin(a), -1, 1, 0, 3);
-    let r = bubbleSize + map(noise(xoff, yoff, t), 0, 1, -30, 30);
-    let x = r * cos(a);
-    let y = r * sin(a);
-    curveVertex(x, y);
-  }
-  endShape(CLOSE);
-  
-  // Colored gradient overlays
-  blendMode(SCREEN); // Use screen blend mode for additive color mixing
-  
-  // Inner cyan gradient
-  for(let r = bubbleSize * 0.8; r > 0; r -= 5) {
-    let alpha = map(r, 0, bubbleSize, 0.2, 0);
-    fill(0, 255, 255, alpha);
+  // Outer iridescent layers
+  for(let r = bubbleSize; r > bubbleSize * 0.4; r -= 4) {
+    let progress = (r - bubbleSize * 0.4) / (bubbleSize * 0.6);
+    let alpha = map(r, bubbleSize, bubbleSize * 0.4, 0.1, 0.15);
+    
+    if (progress > 0.8) {
+      fill(255, 100, 150, alpha); // Pink
+    } else if (progress > 0.6) {
+      fill(255, 200, 100, alpha); // Orange/Yellow
+    } else if (progress > 0.4) {
+      fill(100, 255, 200, alpha); // Turquoise
+    } else if (progress > 0.2) {
+      fill(150, 100, 255, alpha); // Purple
+    } else {
+      fill(255, 150, 255, alpha); // Light pink
+    }
+    
     ellipse(0, 0, r, r);
   }
   
-  // Inner purple gradient
-  for(let r = bubbleSize * 0.6; r > 0; r -= 5) {
-    let alpha = map(r, 0, bubbleSize, 0.2, 0);
-    fill(255, 0, 255, alpha);
-    ellipse(0, 0, r, r);
-  }
-  
-  // White highlight in center
-  for(let r = bubbleSize * 0.4; r > 0; r -= 5) {
-    let alpha = map(r, 0, bubbleSize, 0.3, 0);
+  // White center with gradient fade
+  for(let r = bubbleSize * 0.5; r > 0; r -= 3) {
+    let alpha = map(r, bubbleSize * 0.5, 0, 0.15, 0);
     fill(255, 255, 255, alpha);
     ellipse(0, 0, r, r);
   }
   
-  blendMode(BLEND); // Reset blend mode
+  // Extra bright center
+  for(let r = bubbleSize * 0.2; r > 0; r -= 3) {
+    let alpha = map(r, bubbleSize * 0.2, 0, 0.2, 0);
+    fill(255, 255, 255, alpha);
+    ellipse(0, 0, r, r);
+  }
+  
+  blendMode(BLEND);
   pop();
 }
 
@@ -106,20 +103,25 @@ function drawAura() {
   push();
   translate(width/2, height/2);
   
-  let auraSize = 200;
+  let auraSize = 250;
   blendMode(SCREEN);
   
-  for(let i = 0; i < 8; i++) {
-    let t = time + i * 0.3;
-    let x = cos(t) * 15;
-    let y = sin(t) * 15;
+  // Softer aura effect with more colors
+  for(let i = 0; i < 12; i++) {
+    let t = time * 0.3 + i * 0.2;
+    let x = cos(t) * (auraSize * 0.05);
+    let y = sin(t) * (auraSize * 0.05);
     
     noStroke();
-    fill(255, 0, 255, 0.1);
+    
+    fill(255, 100, 150, 0.05);
     ellipse(x, y, auraSize, auraSize);
     
-    fill(0, 255, 255, 0.1);
-    ellipse(x + 5, y - 5, auraSize * 0.9, auraSize * 0.9);
+    fill(100, 255, 200, 0.05);
+    ellipse(x + (auraSize * 0.01), y - (auraSize * 0.01), auraSize * 0.95, auraSize * 0.95);
+    
+    fill(150, 100, 255, 0.05);
+    ellipse(x - (auraSize * 0.01), y + (auraSize * 0.01), auraSize * 0.9, auraSize * 0.9);
   }
   
   blendMode(BLEND);
@@ -133,8 +135,11 @@ function drawNoise() {
   for(let x = 0; x < width; x += 4) {
     for(let y = 0; y < height; y += 4) {
       let noiseVal = noise(x * noiseScale, y * noiseScale, time);
-      let index = (x + y * width) * 4;
-      pixels[index + 3] = noiseVal * 10;
+      let index = 4 * (y * width + x);
+      // Only set pixel if within bounds
+      if (index < pixels.length - 4) {
+        pixels[index + 3] = noiseVal * 10;
+      }
     }
   }
   updatePixels();
