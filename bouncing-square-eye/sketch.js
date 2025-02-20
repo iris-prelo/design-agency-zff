@@ -153,5 +153,12 @@ function windowResized() {
   let oldBuffer = frameBuffer;
   frameBuffer = createGraphics(windowWidth, windowHeight);
   frameBuffer.background(0);
-  frameBuffer.image(oldBuffer, 0, 0);
+  frameBuffer.imageMode(CENTER);  // Make sure buffer uses same image mode
+  
+  // Ensure square stays within bounds after resize
+  square.x = Math.round(constrain(square.x, square.width/2, width - square.width/2));
+  square.y = Math.round(constrain(square.y, square.height/2, height - square.height/2));
+  
+  // Copy old buffer to new one
+  frameBuffer.image(oldBuffer, width/2, height/2, width, height);
 }
