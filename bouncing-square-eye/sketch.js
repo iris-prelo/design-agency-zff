@@ -1,16 +1,21 @@
 let square = {
   x: 100,
   y: 100,
-  width: 100,
-  height: 100,
+  width: 200,  
+  height: 200,  
   speedX: 3,
-  speedY: 3
+  speedY: 3,
+  minSize: 150,  
+  maxSize: 250   
 };
 
 let eye = {
   x: 0,
   y: 0,
-  size: 50  // Adjust this value to change the eye size
+  width: 0,   
+  height: 0,  
+  scale: 0.8,  // Scale for the frame size
+  imageScale: 3  // Scale for the eye image size
 };
 
 let img;
@@ -32,6 +37,9 @@ function setup() {
   // Load the eye image
   loadImage('eye.png', (loadedImg) => {
     eyeImg = loadedImg;
+    let aspectRatio = eyeImg.width / eyeImg.height;
+    eye.height = 150;
+    eye.width = eye.height * aspectRatio;
   });
   
   // Hide the canvas initially
@@ -76,56 +84,67 @@ function startAnimation(loadedImg) {
 function draw() {
   if (!isAnimationStarted) return;
   
-  // Clear the background each frame
-  background(0);
-  
   // Update square position
-  square.x += square.speedX;
-  square.y += square.speedY;
+  square.x = Math.round(square.x + square.speedX);
+  square.y = Math.round(square.y + square.speedY);
   
   // Check for collisions and change shape
   // Right edge
   if (square.x + square.width/2 > width) {
-    square.x = width - square.width/2;
+    square.x = Math.round(width - square.width/2);
     square.speedX *= -1;
-    square.height = random(square.minSize, square.maxSize);
-    square.width = random(square.minSize, square.maxSize);
+    square.height = Math.round(random(square.minSize, square.maxSize));
+    square.width = Math.round(random(square.minSize, square.maxSize));
   }
   
   // Left edge
   if (square.x - square.width/2 < 0) {
-    square.x = square.width/2;
+    square.x = Math.round(square.width/2);
     square.speedX *= -1;
-    square.height = random(square.minSize, square.maxSize);
-    square.width = random(square.minSize, square.maxSize);
+    square.height = Math.round(random(square.minSize, square.maxSize));
+    square.width = Math.round(random(square.minSize, square.maxSize));
   }
   
   // Bottom edge
   if (square.y + square.height/2 > height) {
-    square.y = height - square.height/2;
+    square.y = Math.round(height - square.height/2);
     square.speedY *= -1;
-    square.width = random(square.minSize, square.maxSize);
-    square.height = random(square.minSize, square.maxSize);
+    square.width = Math.round(random(square.minSize, square.maxSize));
+    square.height = Math.round(random(square.minSize, square.maxSize));
   }
   
   // Top edge
   if (square.y - square.height/2 < 0) {
-    square.y = square.height/2;
+    square.y = Math.round(square.height/2);
     square.speedY *= -1;
-    square.width = random(square.minSize, square.maxSize);
-    square.height = random(square.minSize, square.maxSize);
+    square.width = Math.round(random(square.minSize, square.maxSize));
+    square.height = Math.round(random(square.minSize, square.maxSize));
   }
   
-  // Draw the Opernhaus image
-  image(img, square.x, square.y, square.width, square.height);
+  // Draw the frame effect to the buffer
+  frameBuffer.image(img, square.x, square.y, square.width, square.height);
   
-  // Update eye position to follow the center of the Opernhaus image
-  eye.x = square.x + square.width/2 - eye.size/2;
-  eye.y = square.y + square.height/2 - eye.size/2;
+  // Draw the buffer to the main canvas
+  image(frameBuffer, width/2, height/2, width, height);
   
-  // Draw the eye image
   if (eyeImg) {
-    image(eyeImg, eye.x, eye.y, eye.size, eye.size);
+    let maskWidth = eye.width * eye.scale;
+    let scaledWidth = eye.width * eye.imageScale;
+    let scaledHeight = eye.height * eye.imageScale;
+    
+    // Always use the exact center of the square
+    let centerX = Math.round(square.x);  // Round to prevent sub-pixel rendering
+    let centerY = Math.round(square.y);  // Round to prevent sub-pixel rendering
+    
+    // Create circular mask at the center
+    push();
+    fill(0);
+    noStroke();
+    circle(centerX, centerY, maskWidth);
+    pop();
+    
+    // Draw the eye image at exactly the same center point
+    image(eyeImg, centerX, centerY, scaledWidth, scaledHeight);
   }
 }
 
