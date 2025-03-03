@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bouncing Image/Webcam</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: #000;
+        font-family: Arial, sans-serif;
+      }
+      #upload-container {
+        text-align: center;
+        padding: 40px;
+        border: 3px dashed #fff;
+        border-radius: 20px;
+        color: #fff;
+      }
+      #upload-container.dragover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      button {
+        background: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="upload-container">
+      <h2>Drop your image here</h2>
+      <p>or</p>
+    </div>
+    <script src="sketch.js"></script>
+  </body>
+</html>
