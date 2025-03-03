@@ -7,7 +7,7 @@ let square = {
   speedY: 3,
   rotation: 0,          // Current rotation angle
   targetRotation: 0,    // Target rotation angle
-  rotationSpeed: 0.01   // Reduced from 0.05 to 0.02 for slower rotation
+  rotationSpeed: 0.02   // Reduced from 0.05 to 0.02 for slower rotation
 };
 
 let img;
@@ -17,6 +17,8 @@ let targetWidth = 100;
 let targetHeight = 100;
 let changeTimer = 0;
 let transitionSpeed = 0.05;
+let scaleFactor = 4; // Add scale factor for high-res exports
+let screenshotCount = 0;  // Add counter for naming screenshots
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -118,6 +120,29 @@ function draw() {
   rotate(square.rotation);
   image(img, -square.width/2, -square.height/2, square.width, square.height);
   pop();
+  
+  // Check for spacebar press to save high-res image
+  if (keyIsPressed && key === ' ') {
+    // Create a high-resolution graphics buffer
+    let exportCanvas = createGraphics(width * scaleFactor, height * scaleFactor);
+    exportCanvas.imageMode(CORNER);
+    
+    // Scale everything up
+    exportCanvas.scale(scaleFactor);
+    
+    // Draw black background
+    exportCanvas.background(0);
+    
+    // Get the current canvas content and draw it to the export canvas
+    exportCanvas.drawingContext.drawImage(canvas, 0, 0, width, height);
+    
+    // Save the high-res image with timestamp
+    let timestamp = year() + nf(month(), 2) + nf(day(), 2) + "_" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
+    saveCanvas(exportCanvas, 'bouncing_image_' + timestamp, 'png');
+    
+    // Clean up
+    exportCanvas.remove();
+  }
 }
 
 function windowResized() {
