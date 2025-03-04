@@ -4,10 +4,11 @@ let params = {
   baseRadius: 300,
   smallCircleSize: 10,
   perspective: 0.15,
-  sideAngle: 0,  // Left-right rotation (-45 to 45 degrees)
-  topAngle: 0,    // New parameter for top-bottom rotation (-45 to 45 degrees)
-  ringSpacing: 0.15,  // New parameter for controlling distance between rings
-  glowIntensity: 20  // Default glow value
+  sideAngle: 0,    // Will now have a larger range
+  topAngle: 0,     // Will now have a larger range
+  ringSpacing: 0.15,
+  glowIntensity: 20,
+  zDepth: 0  // Will now range from negative to positive
 };
 
 let sliders = {};
@@ -26,8 +27,9 @@ function setup() {
   createSliderWithLabel('perspective', 'Perspective', 0.05, 0.3, params.perspective, 0.01);
   createSliderWithLabel('ringSpacing', 'Ring Spacing', 0.05, 0.3, params.ringSpacing, 0.01);
   createSliderWithLabel('glowIntensity', 'Glow', 0, 100, params.glowIntensity, 1);  // Increased max value to 100
-  createSliderWithLabel('sideAngle', 'Side Angle', -45, 45, params.sideAngle, 1);
-  createSliderWithLabel('topAngle', 'Top Angle', -45, 45, params.topAngle, 1);
+  createSliderWithLabel('zDepth', 'Z Depth', -2000, 2000, params.zDepth, 10);  // Changed range to include negative values
+  createSliderWithLabel('sideAngle', 'Side Angle', -180, 180, params.sideAngle, 1);  // Increased from -45/45 to -180/180
+  createSliderWithLabel('topAngle', 'Top Angle', -180, 180, params.topAngle, 1);     // Increased from -45/45 to -180/180
   
   // Create screenshot button
   let screenshotBtn = createButton('Screenshot');
@@ -57,19 +59,23 @@ function createSliderWithLabel(param, labelText, min, max, defaultValue, step) {
   container.parent(select('.controls'));
 }
 
-function drawCircleWithGlow(x, y, size, intensity) {
+function drawCircleWithGlow(x, y, z, size, intensity) {
+  push();
+  translate(x, y, z);  // Added z translation
+  
   // Draw multiple layers of circles with decreasing opacity
   for (let i = 0; i < 6; i++) {
     let alpha = map(i, 0, 6, 255, 0);
     let glowSize = size + (i * (intensity / 5));
     
     fill(255, alpha);
-    circle(x, y, glowSize);
+    circle(0, 0, glowSize);
   }
   
   // Draw the main circle on top
   fill(255);
-  circle(x, y, size);
+  circle(0, 0, size);
+  pop();
 }
 
 function takeHighResScreenshot() {
@@ -86,6 +92,7 @@ function takeHighResScreenshot() {
   
   for (let ring = params.rings - 1; ring >= 0; ring--) {
     let radius = (params.baseRadius * scaleFactor) * (1 - ring * params.ringSpacing);
+    let zPos = -ring * params.zDepth * scaleFactor;  // Scale Z position for high-res
     
     for (let i = 0; i < params.totalCircles; i++) {
       let angle = map(i, 0, params.totalCircles, 0, 360);
@@ -95,7 +102,7 @@ function takeHighResScreenshot() {
       let currentCircleSize = (params.smallCircleSize * scaleFactor) * (1 - ring * params.perspective);
       
       tempCanvas.push();
-      tempCanvas.translate(x, y, 0);
+      tempCanvas.translate(x, y, zPos);
       
       // Draw glow layers for screenshot
       for (let j = 0; j < 6; j++) {
@@ -129,6 +136,7 @@ function draw() {
   // Draw rings from outer to inner
   for (let ring = params.rings - 1; ring >= 0; ring--) {
     let radius = params.baseRadius * (1 - ring * params.ringSpacing);
+    let zPos = -ring * params.zDepth;  // Calculate Z position based on ring number
     
     for (let i = 0; i < params.totalCircles; i++) {
       let angle = map(i, 0, params.totalCircles, 0, 360);
@@ -137,10 +145,7 @@ function draw() {
       
       let currentCircleSize = params.smallCircleSize * (1 - ring * params.perspective);
       
-      push();
-      translate(x, y, 0);
-      drawCircleWithGlow(0, 0, currentCircleSize, params.glowIntensity);
-      pop();
+      drawCircleWithGlow(x, y, zPos, currentCircleSize, params.glowIntensity);
     }
   }
 }
