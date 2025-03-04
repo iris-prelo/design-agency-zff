@@ -6,29 +6,32 @@ body {
 }
 
 .controls {
-    width: 200px;
+    width: 180px;
     height: 100vh;
     background: #333;
-    padding: 15px;
+    padding: 8px;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
     overflow-y: auto;
 }
 
 .slider-container {
-    margin: 15px 0;
+    margin: 6px 0;
 }
 
 .slider-label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 1px;
     color: white;
-    font-weight: bold;
-    font-size: 0.9em;
+    font-weight: normal;
+    font-size: 0.75em;
 }
 
 input[type="range"] {
     width: 100%;
+    margin: 1px 0;
+    transform: scale(0.9);
+    transform-origin: left center;
 }
 
 #canvas-container {
@@ -37,4 +40,20 @@ input[type="range"] {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.screenshot-btn {
+    width: 100%;
+    padding: 6px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.75em;
+    margin-top: 12px;
+}
+
+.screenshot-btn:hover {
+    background: #555;
 } 
