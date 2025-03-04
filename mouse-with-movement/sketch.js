@@ -78,6 +78,8 @@ function draw() {
     } else if (key === '2') {
       targetWidth = max(10, targetWidth - 10);  // Don't let it get smaller than 10
       targetHeight = max(10, targetHeight - 10);
+    } else if (key === '3') {
+      background(0);  // Clear the screen with black background
     }
   }
   

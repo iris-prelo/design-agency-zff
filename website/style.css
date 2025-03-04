@@ -1,0 +1,40 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background: #222;
+}
+
+.controls {
+    width: 200px;
+    height: 100vh;
+    background: #333;
+    padding: 15px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    overflow-y: auto;
+}
+
+.slider-container {
+    margin: 15px 0;
+}
+
+.slider-label {
+    display: block;
+    margin-bottom: 5px;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+#canvas-container {
+    flex-grow: 1;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} 
