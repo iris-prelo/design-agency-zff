@@ -8,7 +8,9 @@ let params = {
   topAngle: 0,     // Will now have a larger range
   ringSpacing: 0.15,
   glowIntensity: 20,
-  zDepth: 0  // Will now range from negative to positive
+  zDepth: 0,  // Will now range from negative to positive
+  perspectiveStretch: 0.5,  // For individual circle distortion
+  overallStretch: 1.0  // New parameter for overall vertical stretch
 };
 
 let sliders = {};
@@ -26,12 +28,13 @@ function setup() {
   createSliderWithLabel('smallCircleSize', 'Circle Size', 2, 20, params.smallCircleSize, 1);
   createSliderWithLabel('perspective', 'Perspective', 0.05, 0.3, params.perspective, 0.01);
   createSliderWithLabel('ringSpacing', 'Ring Spacing', 0.05, 0.3, params.ringSpacing, 0.01);
-  createSliderWithLabel('glowIntensity', 'Glow', 0, 100, params.glowIntensity, 1);  // Increased max value to 100
-  createSliderWithLabel('zDepth', 'Z Depth', -2000, 2000, params.zDepth, 10);  // Changed range to include negative values
-  createSliderWithLabel('sideAngle', 'Side Angle', -180, 180, params.sideAngle, 1);  // Increased from -45/45 to -180/180
-  createSliderWithLabel('topAngle', 'Top Angle', -180, 180, params.topAngle, 1);     // Increased from -45/45 to -180/180
+  createSliderWithLabel('glowIntensity', 'Glow', 0, 100, params.glowIntensity, 1);
+  createSliderWithLabel('zDepth', 'Z Depth', -2000, 2000, params.zDepth, 10);
+  createSliderWithLabel('perspectiveStretch', 'Circle Stretch', 0, 5, params.perspectiveStretch, 0.01);
+  createSliderWithLabel('overallStretch', 'Overall Stretch', 0.1, 2.0, params.overallStretch, 0.01);  // New slider
+  createSliderWithLabel('sideAngle', 'Side Angle', -180, 180, params.sideAngle, 1);
+  createSliderWithLabel('topAngle', 'Top Angle', -180, 180, params.topAngle, 1);
   
-  // Create screenshot button
   let screenshotBtn = createButton('Screenshot');
   screenshotBtn.class('screenshot-btn');
   screenshotBtn.parent(select('.controls'));
@@ -61,7 +64,13 @@ function createSliderWithLabel(param, labelText, min, max, defaultValue, step) {
 
 function drawCircleWithGlow(x, y, z, size, intensity) {
   push();
-  translate(x, y, z);  // Added z translation
+  translate(x, y, z);
+  
+  // Calculate perspective scaling based on Z position with more extreme effect
+  let zScale = map(z, -2000, 2000, 1 + params.perspectiveStretch * 2, 1 - params.perspectiveStretch);  // Multiplied positive stretch by 2
+  
+  // Apply scaling for perspective distortion
+  scale(1, zScale);
   
   // Draw multiple layers of circles with decreasing opacity
   for (let i = 0; i < 6; i++) {
@@ -84,6 +93,9 @@ function takeHighResScreenshot() {
   
   tempCanvas.angleMode(DEGREES);
   tempCanvas.background(0);
+  
+  // Apply overall stretch to screenshot
+  tempCanvas.scale(1, params.overallStretch);
   
   tempCanvas.rotateY(params.sideAngle * 0.5);
   tempCanvas.rotateX(params.topAngle * 0.5);
@@ -128,6 +140,9 @@ function takeHighResScreenshot() {
 function draw() {
   background(0);
   
+  // Apply overall stretch before rotations
+  scale(1, params.overallStretch);
+  
   rotateY(params.sideAngle * 0.5);
   rotateX(params.topAngle * 0.5);
   
@@ -136,7 +151,7 @@ function draw() {
   // Draw rings from outer to inner
   for (let ring = params.rings - 1; ring >= 0; ring--) {
     let radius = params.baseRadius * (1 - ring * params.ringSpacing);
-    let zPos = -ring * params.zDepth;  // Calculate Z position based on ring number
+    let zPos = -ring * params.zDepth;
     
     for (let i = 0; i < params.totalCircles; i++) {
       let angle = map(i, 0, params.totalCircles, 0, 360);
