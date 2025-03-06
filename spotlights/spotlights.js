@@ -1,4 +1,4 @@
-let numRings = 30;
+let numRings = 0; // Start with 0 rings
 let circlesPerRing = 60;
 let maxRadius;
 let minRadius = 5;
@@ -25,7 +25,7 @@ function setup() {
   sliders.circlesPerRing = createSlider(5, 70, circlesPerRing, 1).parent(slidersContainer);
   sliders.scale = createSlider(0.1, 1, 0.7, 0.01).parent(slidersContainer);
   sliders.ringSpacing = createSlider(5, 50, 15, 1).parent(slidersContainer);
-  sliders.numRings = createSlider(10, 70, numRings, 1).parent(slidersContainer);
+  sliders.numRings = createSlider(0, 70, numRings, 1).parent(slidersContainer); // Updated to start at 0
   sliders.cycleSpacing = createSlider(1, 10, 1, 1).parent(slidersContainer);
   sliders.cyclesPerRing = createSlider(1, 10, 3, 1).parent(slidersContainer);
   sliders.offset = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
@@ -110,12 +110,12 @@ function draw() {
 
   fill(255);
 
-  for (let ringIndex = 0; ringIndex < numRings; ringIndex++) {
+  for (let ringIndex = numRings - 1; ringIndex >= 0; ringIndex--) {
     let t = map(ringIndex, 0, numRings, 0, 1);
     let ringZ = -200 + ringIndex * ringSpacing;
-    let ringRadius = lerp(maxRadius, minRadius, t);
+    let ringRadius = lerp(minRadius, maxRadius, t);
 
-    let ringSizeFactor = map(ringIndex, 0, numRings, 1, 0.3);
+    let ringSizeFactor = map(ringIndex, 0, numRings, 0.3, 1);
     let adjustedMaxSize = maxSize * ringSizeFactor;
     let adjustedMinSize = minSize * ringSizeFactor;
 
@@ -148,11 +148,10 @@ function draw() {
 // Export-Funktion: Verdoppelt die Auflösung, speichert aber ohne Skalierung der Objekte
 function keyPressed() {
   if (key === ' ') {  
-    isExporting = true;  
-    let fileName = 'high_res_export.png';
-
-    // Speicherbild mit verdoppelter Auflösung, aber ohne Skalierung der Objekte
-    saveCanvas(fileName, 'png');
-    isExporting = false;  
+    numRings++; // Increment the number of rings
+    sliders.numRings.value(numRings); // Update the slider value
+  } else if (keyCode === BACKSPACE) {
+    numRings = max(0, numRings - 1); // Decrement the number of rings, ensuring it doesn't go below 0
+    sliders.numRings.value(numRings); // Update the slider value
   }
 }
