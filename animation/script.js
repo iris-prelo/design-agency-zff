@@ -24,8 +24,8 @@ let isRotating = false;
 let rotationProgress = 0;
 let rotationSpeed = 0.02;
 let finalRotX = PI/3; // Final rotation X
-let finalRotY = 0; // Final rotation Y
-let initialRotX = PI/3; // Initial rotation X
+let finalRotY = 0; // Final rotation Y (front view)
+let initialRotX = PI/3; // Initial rotation X (same as final)
 let initialRotY = -PI/2; // Initial rotation Y (side view)
 
 function setup() {
@@ -104,7 +104,6 @@ function mouseReleased() {
 function draw() {
   background(0);
 
-  // Update build-up animation
   if (isAnimating) {
     animationProgress += animationSpeed;
     
@@ -128,20 +127,22 @@ function draw() {
     currentCirclesPerRing = circlesSlider.value();
   }
 
-  // Update rotation animation
   if (isRotating) {
     rotationProgress += rotationSpeed;
     let eased = 1 - Math.pow(1 - rotationProgress, 3);
     
-    // Interpolate from initial to final rotation
-    camRotX = lerp(initialRotX, finalRotX, eased);
+    // Keep X rotation constant and only animate Y rotation
+    camRotX = initialRotX;
     camRotY = lerp(initialRotY, finalRotY, eased);
 
     if (rotationProgress >= 1) {
       isRotating = false;
-      // Set the target rotation to match the final rotation
-      targetRotX = finalRotX;
-      targetRotY = finalRotY;
+      // Set the target rotations to match the current position
+      targetRotX = camRotX;
+      targetRotY = camRotY;
+      // Ensure the camera is at the final position
+      camRotX = finalRotX;
+      camRotY = finalRotY;
     }
   } else if (!isAnimating) {
     if (mouseIsPressed && !isSliderActive) {

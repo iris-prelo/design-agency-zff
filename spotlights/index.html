@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kreisanimation mit Zyklen</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #222;
+        display: flex;
+        height: 100vh;
+      }
+      #sidebar {
+        width: 250px; /* Reduced width */
+        background-color: #333;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+      #canvas-container {
+        flex-grow: 1;
+        position: relative;
+      }
+      .slider-label {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <div id="sliders-container"></div>
+    </div>
+    <div id="canvas-container">
+      <!-- P5.js Bibliothek -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+      <!-- Deine externe JavaScript-Datei -->
+      <script src="spotlights.js"></script>
+    </div>
+  </body>
+</html>
