@@ -1,0 +1,76 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: white;
+    overflow: hidden;
+    display: flex;
+}
+
+#sidebar {
+    width: 300px;
+    background: #1a1a1a;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.control-group {
+    margin-bottom: 20px;
+}
+
+.slider-container {
+    margin-bottom: 15px;
+}
+
+.slider-label {
+    display: block;
+    margin-bottom: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin: 5px 0;
+}
+
+#canvas-container {
+    flex-grow: 1;
+}
+
+canvas {
+    display: block;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+button {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+button:hover {
+    background: #444;
+}
+
+#downloadButton {
+    background: #4CAF50;
+    margin-top: 10px;
+}
+
+#downloadButton:hover {
+    background: #45a049;
+} 

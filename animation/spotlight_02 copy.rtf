@@ -1,0 +1,189 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 let numRings = 30; // Anzahl der Ringe\
+let circlesPerRing = 40; // Anzahl der Kreise pro Ring\
+let maxRadius; // Maximale Breite des Rings oben\
+let minRadius = 5; // Minimale Breite des Rings unten\
+let camRotX = 0; // Kamera Rotation um X\
+let camRotY = 0; // Kamera Rotation um Y\
+let targetRotX = 0; // Zielrotation f\'fcr weiche Bewegung\
+let targetRotY = 0;\
+let maxSize = 30; // Maximale Gr\'f6\'dfe der Kreise\
+let minSize = 3; // Minimale Gr\'f6\'dfe der Kreise\
+let maxSlider, minSlider, circlesSlider, ringSpacingSlider, ringsSlider, scaleSlider, cycleSpacingSlider, cyclesPerRingSlider;\
+let offsetSlider, rotationSlider; // Neuer Slider f\'fcr die Verschiebung des Verlaufs und Rotation der Ringe\
+let lastMouseX, lastMouseY; // Zum Verfolgen der Mausbewegung\
+let isSliderActive = false; // Flag, um zu pr\'fcfen, ob der Slider aktiv ist\
+let isMousePressedLast = false; // Flag, um den Mausstatus zu \'fcberpr\'fcfen\
+\
+function setup() \{\
+  createCanvas(windowWidth, windowHeight, WEBGL);\
+  maxRadius = width * 0.4;\
+  noStroke();\
+\
+  let sliderX = 20; // X-Position der linken Spalte\
+  let textX = 230; // X-Position der Text-Beschriftung\
+  let sliderXRight = 450; // X-Position der rechten Spalte\
+\
+  // Setze Y-Positionen f\'fcr die Slider der linken Spalte\
+  let sliderY = windowHeight - 150; // Slider beginnen 150px vom unteren Rand\
+  let textY = sliderY - 15; // Setze die Textposition im Verh\'e4ltnis zu den Slidern\
+\
+  // Slider f\'fcr die maximale Gr\'f6\'dfe der Kreise\
+  maxSlider = createSlider(10, 100, maxSize, 1);\
+  maxSlider.position(sliderX, sliderY).style('width', '200px');\
+  maxSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Slider f\'fcr die minimale Gr\'f6\'dfe der Kreise\
+  minSlider = createSlider(1, 30, minSize, 1);\
+  minSlider.position(sliderX, sliderY + 30).style('width', '200px');\
+  minSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Slider f\'fcr die Anzahl der Kreise pro Ring\
+  circlesSlider = createSlider(5, 40, circlesPerRing, 1);\
+  circlesSlider.position(sliderX, sliderY + 60).style('width', '200px');\
+  circlesSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Slider f\'fcr die Skalierung des gesamten Objekts\
+  scaleSlider = createSlider(0.1, 1, 0.7, 0.01); // Skalierung von 10% bis 100%\
+  scaleSlider.position(sliderX, sliderY + 90).style('width', '200px');\
+  scaleSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Text-Labels f\'fcr die Slider der linken Spalte\
+  fill(255);\
+  textSize(16);\
+  textAlign(LEFT, CENTER);\
+\
+  createP("Gr\'f6\'dfter Kreis").position(textX, textY).style('color', 'white');\
+  createP("Kleinster Kreis").position(textX, textY + 30).style('color', 'white');\
+  createP("Kreise pro Ring").position(textX, textY + 60).style('color', 'white');\
+  createP("Skalierung").position(textX, textY + 90).style('color', 'white');\
+\
+  // Slider f\'fcr den Abstand zwischen den Ringen\
+  ringSpacingSlider = createSlider(5, 30, 15, 1);\
+  ringSpacingSlider.position(sliderXRight, height - 80).style('width', '200px');\
+  ringSpacingSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Neuer Slider f\'fcr die Anzahl der Ringe\
+  ringsSlider = createSlider(10, 50, numRings, 1); \
+  ringsSlider.position(sliderXRight, height - 50).style('width', '200px');\
+  ringsSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Slider f\'fcr den Abstand der Zyklen\
+  cycleSpacingSlider = createSlider(1, 10, 1, 1);\
+  cycleSpacingSlider.position(sliderXRight, height - 120).style('width', '200px');\
+  cycleSpacingSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Neuer Slider f\'fcr die Anzahl der Zyklen pro Ring\
+  cyclesPerRingSlider = createSlider(1, 10, 3, 1); // Dieser Slider bestimmt, wie oft der Verlauf wiederholt wird\
+  cyclesPerRingSlider.position(sliderXRight, height - 150).style('width', '200px');\
+  cyclesPerRingSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Neuer Slider f\'fcr die Verschiebung des Verlaufsstartpunkts\
+  offsetSlider = createSlider(0, TWO_PI, 0, 0.01); // Verschiebung von 0 bis 2PI\
+  offsetSlider.position(sliderX, sliderY + 120).style('width', '200px');\
+  offsetSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Neuer Slider f\'fcr die Rotation der Ringe\
+  rotationSlider = createSlider(0, 180, 15, 1); // Rotation f\'fcr den Verlauf\
+  rotationSlider.position(sliderXRight, height - 180).style('width', '200px');\
+  rotationSlider.input(() => \{ isSliderActive = true; \});\
+\
+  // Text-Labels f\'fcr die Slider der rechten Spalte\
+  createP("Abstand der Ringe").position(sliderXRight + 210, height - 95).style('color', 'white');\
+  createP("Anzahl der Ringe").position(sliderXRight + 210, height - 65).style('color', 'white');\
+  createP("Abstand der Zyklen").position(sliderXRight + 210, height - 125).style('color', 'white');\
+  createP("Zyklen pro Ring").position(sliderXRight + 210, height - 155).style('color', 'white');\
+  createP("Verschiebung des Verlaufs").position(textX, sliderY + 120).style('color', 'white');\
+  createP("Rotation der Ringe").position(sliderXRight + 210, height - 185).style('color', 'white');\
+\
+  lastMouseX = mouseX; // Initialisiere die letzten Mauskoordinaten\
+  lastMouseY = mouseY;\
+\}\
+\
+function mouseReleased() \{\
+  isSliderActive = false;\
+\}\
+\
+function draw() \{\
+  background(0);\
+\
+  maxSize = maxSlider.value();\
+  minSize = minSlider.value();\
+  circlesPerRing = circlesSlider.value();\
+  let ringSpacing = ringSpacingSlider.value(); // Neuer Wert f\'fcr Ringabstand\
+  numRings = ringsSlider.value(); // Anzahl der Ringe\
+  let scaleFactor = scaleSlider.value(); // Wert f\'fcr die Skalierung\
+  let cycleSpacing = cycleSpacingSlider.value(); // Abstand zwischen den Zyklen\
+  let cyclesPerRing = cyclesPerRingSlider.value(); // Anzahl der Zyklen pro Ring\
+  let offset = offsetSlider.value(); // Verschiebung des Verlaufsstartpunkts\
+  let rotationAngle = rotationSlider.value(); // Rotation der Ringe in Grad\
+\
+  // Berechne den Abstand der Kreise in Grad\
+  let circleSpacing = 360 / circlesPerRing;\
+\
+  // Skalierung des gesamten Objekts\
+  scale(scaleFactor); // Alle Objekte werden um den Faktor aus dem Slider skaliert\
+\
+  // Wenn die Maus gedr\'fcckt wird und kein Slider aktiv ist, bewege die Kamera\
+  if (mouseIsPressed && !isSliderActive) \{\
+    // Berechne die Differenz in der Mausbewegung\
+    let deltaX = mouseX - lastMouseX;\
+    let deltaY = mouseY - lastMouseY;\
+\
+    // Zielrotation in Abh\'e4ngigkeit von der Mausbewegung\
+    targetRotX += deltaY * 0.01;\
+    targetRotY += deltaX * 0.01;\
+\
+    // Aktualisiere die letzten Mauskoordinaten\
+    lastMouseX = mouseX;\
+    lastMouseY = mouseY;\
+  \}\
+\
+  // Weiche Kamerabewegung\
+  camRotX = lerp(camRotX, targetRotX, 0.1);\
+  camRotY = lerp(camRotY, targetRotY, 0.1);\
+\
+  rotateX(camRotX);\
+  rotateY(camRotY);\
+  rotateX(PI * 160 / 180);\
+  rotateY(PI);\
+\
+  fill(255);\
+\
+  for (let ringIndex = 0; ringIndex < numRings; ringIndex++) \{\
+    let t = map(ringIndex, 0, numRings, 0, 1);\
+    let ringZ = -200 + ringIndex * ringSpacing; // Abstand zwischen den Ringen gesteuert durch den neuen Slider\
+    let ringRadius = lerp(maxRadius, minRadius, t);\
+\
+    // Anpassung der Kreisgr\'f6\'dfe basierend auf dem Ring-Index\
+    let ringSizeFactor = map(ringIndex, 0, numRings, 1, 0.3);\
+    let adjustedMaxSize = maxSize * ringSizeFactor;\
+    let adjustedMinSize = minSize * ringSizeFactor;\
+\
+    // Berechnung der Anzahl der Zyklen im Ring\
+    let cycleSize = circlesPerRing / cyclesPerRing; // Anzahl der Kreise pro Zyklus, basierend auf der Anzahl der Zyklen pro Ring\
+\
+    for (let circleIndex = 0; circleIndex < circlesPerRing; circleIndex++) \{\
+      // Berechne den Winkel \'fcber den gesamten Bereich von 0 bis 360 Grad f\'fcr einen Zyklus\
+      let angle = map(circleIndex, 0, circlesPerRing, 0, TWO_PI); // Jetzt geht es \'fcber 360 Grad (TWO_PI)\
+      \
+      // Zyklus-Verlauf \'fcber Sinus: vom kleinsten zum gr\'f6\'dften und zur\'fcck\
+      let circleSize = lerp(adjustedMinSize, adjustedMaxSize, (1 + sin(angle * cyclesPerRing + offset)) / 2);\
+\
+      let x = cos(angle) * ringRadius;\
+      let y = sin(angle) * ringRadius;\
+\
+      push();\
+      translate(x, y, ringZ);\
+      ellipse(0, 0, circleSize, circleSize);\
+      pop();\
+    \}\
+  \}\
+\}\
+}
