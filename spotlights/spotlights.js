@@ -148,7 +148,11 @@ function draw() {
 // Export-Funktion: Verdoppelt die Auflösung, speichert aber ohne Skalierung der Objekte
 function keyPressed() {
   if (key === ' ') {  
-    numRings++; // Increment the number of rings
+    if (numRings === 0) {
+      numRings = 1; // Add one ring on the first press
+    } else {
+      numRings = min(numRings * 2, 70); // Double the number of rings, ensuring it doesn't exceed 70
+    }
     sliders.numRings.value(numRings); // Update the slider value
   } else if (keyCode === BACKSPACE) {
     numRings = max(0, numRings - 1); // Decrement the number of rings, ensuring it doesn't go below 0
