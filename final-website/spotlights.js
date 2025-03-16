@@ -33,16 +33,18 @@ function setup() {
   sliders.maxSize = createSlider(10, 100, maxSize, 1).parent(slidersContainer);
   sliders.minSize = createSlider(1, 30, minSize, 1).parent(slidersContainer);
   sliders.circlesPerRing = createSlider(5, 70, circlesPerRing, 1).parent(slidersContainer);
-  sliders.scale = createSlider(0.1, 1, 0.7, 0.01).parent(slidersContainer);
-  sliders.ringSpacing = createSlider(5, 50, 15, 1).parent(slidersContainer);
-  sliders.numRings = createSlider(0, 70, numRings, 1).parent(slidersContainer);
+  sliders.scale = createSlider(0.01, 5, 0.7, 0.01).parent(slidersContainer);
+  sliders.ringSpacing = createSlider(1, 100, 15, 1).parent(slidersContainer); // Extended range
+  sliders.numRings = createSlider(0, 200, numRings, 1).parent(slidersContainer); // Extended range
   sliders.cycleSpacing = createSlider(1, 10, 1, 1).parent(slidersContainer);
   sliders.cyclesPerRing = createSlider(1, 10, 3, 1).parent(slidersContainer);
   sliders.offset = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
   sliders.rotation1 = createSlider(0, 180, 15, 1).parent(slidersContainer);
   sliders.rotation2 = createSlider(0, 180, 15, 1).parent(slidersContainer);
+  sliders.globalRotX = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
+  sliders.globalRotY = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
 
-  // Add labels for sliders
+  // Add labels
   createP('Max Size').parent(slidersContainer);
   sliders.maxSize.parent(slidersContainer);
   createP('Min Size').parent(slidersContainer);
@@ -65,6 +67,10 @@ function setup() {
   sliders.rotation1.parent(slidersContainer);
   createP('Rotation 2').parent(slidersContainer);
   sliders.rotation2.parent(slidersContainer);
+  createP('Global Rotation X').parent(slidersContainer);
+  sliders.globalRotX.parent(slidersContainer);
+  createP('Global Rotation Y').parent(slidersContainer);
+  sliders.globalRotY.parent(slidersContainer);
 
   lastMouseX = mouseX;
   lastMouseY = mouseY;
@@ -92,7 +98,14 @@ function draw() {
   let rotationAngle1 = sliders.rotation1.value();
   let rotationAngle2 = sliders.rotation2.value();
 
+  let globalRotX = sliders.globalRotX.value();
+  let globalRotY = sliders.globalRotY.value();
+
   scale(scaleFactor);
+
+  // Apply global rotation
+  rotateX(globalRotX);
+  rotateY(globalRotY);
 
   if (!isExporting) {
     if (mouseIsPressed && !isSliderActive) {
@@ -136,7 +149,7 @@ function draw() {
 
 function keyPressed() {
   if (key === ' ') {
-    numRings = min(numRings * 2, 70);
+    numRings = min(numRings * 2, 200); // Max limit now 200
     sliders.numRings.value(numRings);
   } else if (keyCode === BACKSPACE) {
     numRings = max(0, numRings - 1);
