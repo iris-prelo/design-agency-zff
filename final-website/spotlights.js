@@ -18,7 +18,6 @@ function setup() {
   }
 
   let canvas = createCanvas(canvasContainer.elt.clientWidth, canvasContainer.elt.clientHeight, WEBGL);
-  console.log('Canvas created with dimensions:', canvas.width, canvas.height);
   canvas.parent('canvas-container');
   resizeCanvas(canvasContainer.elt.clientWidth, canvasContainer.elt.clientHeight);
   maxRadius = width * 0.4;
@@ -33,18 +32,24 @@ function setup() {
   sliders.maxSize = createSlider(10, 100, maxSize, 1).parent(slidersContainer);
   sliders.minSize = createSlider(1, 30, minSize, 1).parent(slidersContainer);
   sliders.circlesPerRing = createSlider(5, 70, circlesPerRing, 1).parent(slidersContainer);
-  sliders.scale = createSlider(0.01, 5, 0.7, 0.01).parent(slidersContainer);
-  sliders.ringSpacing = createSlider(1, 100, 15, 1).parent(slidersContainer); // Extended range
-  sliders.numRings = createSlider(0, 200, numRings, 1).parent(slidersContainer); // Extended range
+  sliders.scale = createSlider(0.01, 5, 0.7, 0.01).parent(slidersContainer); // Increased zoom
+  sliders.ringSpacing = createSlider(1, 100, 15, 1).parent(slidersContainer); // Smaller gaps allowed
+  sliders.numRings = createSlider(0, 200, numRings, 1).parent(slidersContainer); // More rings
   sliders.cycleSpacing = createSlider(1, 10, 1, 1).parent(slidersContainer);
   sliders.cyclesPerRing = createSlider(1, 10, 3, 1).parent(slidersContainer);
   sliders.offset = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
   sliders.rotation1 = createSlider(0, 180, 15, 1).parent(slidersContainer);
   sliders.rotation2 = createSlider(0, 180, 15, 1).parent(slidersContainer);
-  sliders.globalRotX = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
-  sliders.globalRotY = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
+  
+  // Global Rotation Sliders
+  sliders.globalRotationX = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
+  sliders.globalRotationY = createSlider(0, TWO_PI, 0, 0.01).parent(slidersContainer);
 
-  // Add labels
+  // Opacity Sliders
+  sliders.opacityEven = createSlider(0, 100, 100, 1).parent(slidersContainer);
+  sliders.opacityOdd = createSlider(0, 100, 100, 1).parent(slidersContainer);
+
+  // Labels
   createP('Max Size').parent(slidersContainer);
   sliders.maxSize.parent(slidersContainer);
   createP('Min Size').parent(slidersContainer);
@@ -68,13 +73,16 @@ function setup() {
   createP('Rotation 2').parent(slidersContainer);
   sliders.rotation2.parent(slidersContainer);
   createP('Global Rotation X').parent(slidersContainer);
-  sliders.globalRotX.parent(slidersContainer);
+  sliders.globalRotationX.parent(slidersContainer);
   createP('Global Rotation Y').parent(slidersContainer);
-  sliders.globalRotY.parent(slidersContainer);
+  sliders.globalRotationY.parent(slidersContainer);
+  createP('Opacity (Even Circles)').parent(slidersContainer);
+  sliders.opacityEven.parent(slidersContainer);
+  createP('Opacity (Odd Circles)').parent(slidersContainer);
+  sliders.opacityOdd.parent(slidersContainer);
 
   lastMouseX = mouseX;
   lastMouseY = mouseY;
-  console.log('Setup complete');
 }
 
 function windowResized() {
@@ -97,15 +105,12 @@ function draw() {
   let offset = sliders.offset.value();
   let rotationAngle1 = sliders.rotation1.value();
   let rotationAngle2 = sliders.rotation2.value();
-
-  let globalRotX = sliders.globalRotX.value();
-  let globalRotY = sliders.globalRotY.value();
+  let globalRotationX = sliders.globalRotationX.value();
+  let globalRotationY = sliders.globalRotationY.value();
+  let opacityEven = sliders.opacityEven.value();
+  let opacityOdd = sliders.opacityOdd.value();
 
   scale(scaleFactor);
-
-  // Apply global rotation
-  rotateX(globalRotX);
-  rotateY(globalRotY);
 
   if (!isExporting) {
     if (mouseIsPressed && !isSliderActive) {
@@ -118,9 +123,10 @@ function draw() {
     }
     camRotX = lerp(camRotX, targetRotX, 0.1);
     camRotY = lerp(camRotY, targetRotY, 0.1);
-    rotateX(camRotX);
-    rotateY(camRotY);
   }
+
+  rotateX(globalRotationX);
+  rotateY(globalRotationY);
 
   fill(255);
 
@@ -139,20 +145,15 @@ function draw() {
       let x = cos(rotatedAngle) * ringRadius;
       let y = sin(rotatedAngle) * ringRadius;
       let circleSize = lerp(adjustedMinSize, adjustedMaxSize, (1 + sin(baseAngle * cyclesPerRing + offset)) / 2);
+
+      let alpha = (circleIndex % 2 === 0) ? map(opacityEven, 0, 100, 0, 255) 
+                                          : map(opacityOdd, 0, 100, 0, 255);
+
       push();
       translate(x, y, ringZ);
+      fill(255, 255, 255, alpha);
       ellipse(0, 0, circleSize, circleSize);
       pop();
     }
-  }
-}
-
-function keyPressed() {
-  if (key === ' ') {
-    numRings = min(numRings * 2, 200); // Max limit now 200
-    sliders.numRings.value(numRings);
-  } else if (keyCode === BACKSPACE) {
-    numRings = max(0, numRings - 1);
-    sliders.numRings.value(numRings);
   }
 }
