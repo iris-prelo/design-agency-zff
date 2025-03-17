@@ -136,6 +136,7 @@ function drawScene(graphics, scaleFactor) {
       let stretch = isThird ? stretchFactorThird : (isEven ? stretchFactorEven : stretchFactorOdd);
       
       graphics.fill(255, opacity);
+      graphics.noStroke();
       graphics.push();
       graphics.translate(x, y, ringZ);
       graphics.ellipse(0, 0, circleSize * stretch, circleSize);
