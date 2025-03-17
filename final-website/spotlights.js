@@ -9,6 +9,7 @@ let sliders = {};
 let lastMouseX, lastMouseY;
 let isSliderActive = false;
 let isExporting = false;
+let highResGraphics;
 
 function setup() {
   let canvasContainer = select('#canvas-container');
@@ -22,6 +23,9 @@ function setup() {
   maxRadius = width * 0.4;
   noStroke();
 
+  // Create high-res buffer (4× size)
+  highResGraphics = createGraphics(width * 4, height * 4, WEBGL);
+  
   let slidersContainer = select('#sliders-container');
   if (!slidersContainer) {
     console.error('Sliders container not found');
@@ -48,6 +52,15 @@ function setup() {
   sliders.opacityOdd = addSlider('Opacity Rest', 0, 255, 255, 1);
   sliders.stretchFactor = addSlider('Stretch Every 3rd', 0.5, 3, 1, 0.1);
 
+  // Create Export Button
+  let exportButton = createButton('Export High-Res Screenshot');
+  exportButton.parent(slidersContainer);
+  exportButton.style('margin-top', '10px');  // Ensure spacing
+  exportButton.style('padding', '8px 12px'); // Improve visibility
+  exportButton.mousePressed(() => {
+    isExporting = true;
+  });
+
   lastMouseX = mouseX;
   lastMouseY = mouseY;
 }
@@ -56,17 +69,31 @@ function windowResized() {
   let canvasContainer = select('#canvas-container');
   resizeCanvas(canvasContainer.elt.clientWidth, canvasContainer.elt.clientHeight);
   maxRadius = width * 0.4;
+  highResGraphics = createGraphics(width * 4, height * 4, WEBGL);
 }
 
 function draw() {
-  background(0);
+  if (isExporting) {
+    drawScene(highResGraphics, 4);  // Draw high-res version
+    save(highResGraphics, 'screenshot.png');  // Save file
+    isExporting = false;
+  } else {
+    drawScene(this, 1);  // Normal rendering
+  }
+}
+
+function drawScene(graphics, scaleFactor) {
+  graphics.clear();
+  graphics.background(0);
+  graphics.push();
+  graphics.scale(scaleFactor);
   
-  maxSize = sliders.maxSize.value();
-  minSize = sliders.minSize.value();
-  circlesPerRing = sliders.circlesPerRing.value();
+  let maxSize = sliders.maxSize.value();
+  let minSize = sliders.minSize.value();
+  let circlesPerRing = sliders.circlesPerRing.value();
   let ringSpacing = sliders.ringSpacing.value();
-  numRings = sliders.numRings.value();
-  let scaleFactor = sliders.scale.value();
+  let numRings = sliders.numRings.value();
+  let scaleVal = sliders.scale.value();
   let cycleSpacing = sliders.cycleSpacing.value();
   let cyclesPerRing = sliders.cyclesPerRing.value();
   let offset = sliders.offset.value();
@@ -75,25 +102,10 @@ function draw() {
   let opacityEven = sliders.opacityEven.value();
   let opacityOdd = sliders.opacityOdd.value();
   let stretchFactor = sliders.stretchFactor.value();
-  
-  scale(scaleFactor);
-  rotateX(radians(rotationAngleX));
-  rotateY(radians(rotationAngleY));
-  
-  if (!isExporting) {
-    if (mouseIsPressed && !isSliderActive) {
-      let deltaX = mouseX - lastMouseX;
-      let deltaY = mouseY - lastMouseY;
-      targetRotX += deltaY * 0.01;
-      targetRotY += deltaX * 0.01;
-      lastMouseX = mouseX;
-      lastMouseY = mouseY;
-    }
-    camRotX = lerp(camRotX, targetRotX, 0.1);
-    camRotY = lerp(camRotY, targetRotY, 0.1);
-    rotateX(camRotX);
-    rotateY(camRotY);
-  }
+
+  graphics.scale(scaleVal);
+  graphics.rotateX(radians(rotationAngleX));
+  graphics.rotateY(radians(rotationAngleY));
   
   for (let ringIndex = numRings - 1; ringIndex >= 0; ringIndex--) {
     let ringZ = -200 + ringIndex * ringSpacing;
@@ -112,13 +124,15 @@ function draw() {
       let opacity = isEven ? opacityEven : opacityOdd;
       let stretch = isThird ? stretchFactor : 1;
       
-      fill(255, opacity);
-      push();
-      translate(x, y, ringZ);
-      ellipse(0, 0, circleSize * stretch, circleSize);
-      pop();
+      graphics.fill(255, opacity);
+      graphics.push();
+      graphics.translate(x, y, ringZ);
+      graphics.ellipse(0, 0, circleSize * stretch, circleSize);
+      graphics.pop();
     }
   }
+  
+  graphics.pop();
 }
 
 function keyPressed() {
@@ -128,6 +142,7 @@ function keyPressed() {
   } else if (keyCode === BACKSPACE) {
     numRings = max(0, numRings - 1);
     sliders.numRings.value(numRings);
+  } else if (key === 's') { 
+    isExporting = true;  // Trigger high-res export when 's' is pressed
   }
 }
-
