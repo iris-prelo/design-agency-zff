@@ -50,7 +50,11 @@ function setup() {
   sliders.rotationY = addSlider('Rotation Y', 0, 360, 0, 1);
   sliders.opacityEven = addSlider('Opacity Every 2nd', 0, 255, 255, 1);
   sliders.opacityOdd = addSlider('Opacity Rest', 0, 255, 255, 1);
-  sliders.stretchFactor = addSlider('Stretch Every 3rd', 0.5, 3, 1, 0.1);
+
+  // NEW: Three Stretch Factor Sliders
+  sliders.stretchFactorEven = addSlider('Stretch Even Circles', 0.5, 3, 1, 0.1);
+  sliders.stretchFactorOdd = addSlider('Stretch Odd Circles', 0.5, 3, 1, 0.1);
+  sliders.stretchFactorThird = addSlider('Stretch Every 3rd Circle', 0.5, 3, 1, 0.1);
 
   // Create Export Button
   let exportButton = createButton('Export High-Res Screenshot');
@@ -101,7 +105,11 @@ function drawScene(graphics, scaleFactor) {
   let rotationAngleY = sliders.rotationY.value();
   let opacityEven = sliders.opacityEven.value();
   let opacityOdd = sliders.opacityOdd.value();
-  let stretchFactor = sliders.stretchFactor.value();
+  
+  // NEW: Fetch stretch factors
+  let stretchFactorEven = sliders.stretchFactorEven.value();
+  let stretchFactorOdd = sliders.stretchFactorOdd.value();
+  let stretchFactorThird = sliders.stretchFactorThird.value();
 
   graphics.scale(scaleVal);
   graphics.rotateX(radians(rotationAngleX));
@@ -118,11 +126,14 @@ function drawScene(graphics, scaleFactor) {
       let x = cos(baseAngle) * ringRadius;
       let y = sin(baseAngle) * ringRadius;
       let circleSize = lerp(adjustedMinSize, adjustedMaxSize, (1 + sin(baseAngle * cyclesPerRing + offset)) / 2);
+      
       let isEven = circleIndex % 2 === 0;
       let isThird = circleIndex % 3 === 0;
       
       let opacity = isEven ? opacityEven : opacityOdd;
-      let stretch = isThird ? stretchFactor : 1;
+      
+      // NEW: Apply appropriate stretch factor
+      let stretch = isThird ? stretchFactorThird : (isEven ? stretchFactorEven : stretchFactorOdd);
       
       graphics.fill(255, opacity);
       graphics.push();
