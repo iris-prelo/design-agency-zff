@@ -57,7 +57,7 @@ function setup() {
   sliders.stretchFactorThird = addSlider('Stretch Every 3rd Circle', 0.5, 3, 1, 0.1);
 
   // Create Export Button
-  let exportButton = createButton('Export High-Res Screenshot');
+  let exportButton = createButton('Screenshot');
   exportButton.parent(slidersContainer);
   exportButton.style('margin-top', '10px');  // Ensure spacing
   exportButton.style('padding', '8px 12px'); // Improve visibility
